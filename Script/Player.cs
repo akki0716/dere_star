@@ -17,7 +17,7 @@ public class Player : MonoBehaviour {
 
     //演奏開始時間算出関連----------------------------------------------------------------------------------------------------
     int note_time_minimum;//最小のノートスタート時間
-    int extra_time = 1000;//カウントスタートより更に余分に遅らせる時間
+    int extra_time = 100;//カウントスタートより更に余分に遅らせる時間
     int steam_time = 0;//音符が流れるのにかかる時間。
     public float float_steam_time;//音符が流れる時間をfloatにしてノート側(Note_player)から読めるように
     double HS = 2;//ハイスピ
@@ -177,7 +177,7 @@ public class Player : MonoBehaviour {
             searchtime_txt.GetComponent<Text>().text = "searchtime " + (time_count + steam_time).ToString();
             //Debug.Log("search " + (time_count + steam_time));
             time_count_txt.GetComponent<Text>().text = "time_count " + time_count.ToString();
-            //BGMより先に音符を流しはじめきゃいけないので使えない
+            //BGMより先に音符を流しはじめきゃいけないので曲時間をそのまま取る方法は使えない
             //music_time_txt.GetComponent<Text>().text = "music_time " + ((BGM.time)*1000).ToString();
         }
         
@@ -231,12 +231,13 @@ public class Player : MonoBehaviour {
     {
         double x; //基準bpmからの倍率
         double base_time;//現在のbpmでhs1の時の流れる時間
+        int steam_time_accuracy = 100; //音符が流れる時間の精度、score_load.csのnote_accuracyと連動
         x = 100/ N_BPM;
         base_time = 3 * x * HiSpeed;
         //Debug.Log("base_time  " + base_time);
         float_steam_time = (float)base_time;
         //Debug.Log("float_steam_time  " + float_steam_time);
-        return ((int)(base_time * 1000));
+        return ((int)(base_time * steam_time_accuracy));
     }
 
 
@@ -283,7 +284,7 @@ public class Player : MonoBehaviour {
         time_count = note_time_minimum - (steam_time + extra_time);
         if (time_count >= 0)
         {
-            time_count = -2000;
+            time_count = -200;
         }
         //time_count = -1000;
         //Debug.Log("カウント開始時間 " + time_count);

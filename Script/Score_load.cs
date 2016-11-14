@@ -54,7 +54,12 @@ public class Score_load : MonoBehaviour {
     double note_part_pos; //ノーツの位置しているbpm区間の長さを1とした時ノーツのの位置
     double measure_x;//変拍子の時 小節は何倍か
     double this_note_timing = -1;//今のノートのタイミング
+    int note_accuracy = 100; //ノートの時間精度、1000だと1/1000秒＝1ミリ秒、100だと1/100秒＝10ミリ秒。
+    /*note_accuracyを変更したらEdit→Project Settings→Time→TimeManagerのFixedTimestep,
+    Player.csのextra_time、steam_time_decide内のsteam_time_accuracy
+        を適宜変更すること。
 
+    */
     bool Hold_searching_lane1 = false;//次のノートがホールド終点かの判断
     bool Hold_searching_lane2 = false;//次のノートがホールド終点かの判断
     bool Hold_searching_lane3 = false;//次のノートがホールド終点かの判断
@@ -764,75 +769,75 @@ public class Score_load : MonoBehaviour {
     */
             //レーン1
             case 11:
-                data_warehouse.note_timing_lane1.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane1.Add((int)(T_N_timng * 1000) * 10 + 1);
+                data_warehouse.note_timing_lane1.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane1.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
                 break;
             case 12:
-                data_warehouse.note_timing_lane1.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane1.Add((int)(T_N_timng * 1000) * 10 + 2);
+                data_warehouse.note_timing_lane1.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane1.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
                 break;
             //レーン2
             case 13:
-                data_warehouse.note_timing_lane2.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane2.Add((int)(T_N_timng * 1000) * 10 + 1);
+                data_warehouse.note_timing_lane2.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane2.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
                 break;
             case 14:
-                data_warehouse.note_timing_lane2.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane2.Add((int)(T_N_timng * 1000) * 10 + 2);
+                data_warehouse.note_timing_lane2.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane2.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
                 break;
             //レーン3
             case 15:
-                data_warehouse.note_timing_lane3.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane3.Add((int)(T_N_timng * 1000) * 10 + 1);
+                data_warehouse.note_timing_lane3.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane3.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
                 break;
             case 18:
-                data_warehouse.note_timing_lane3.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane3.Add((int)(T_N_timng * 1000) * 10 + 2);
+                data_warehouse.note_timing_lane3.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane3.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
                 break;
             //レーン4
             case 21:
-                data_warehouse.note_timing_lane4.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane4.Add((int)(T_N_timng * 1000) * 10 + 1);
+                data_warehouse.note_timing_lane4.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane4.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
                 break;
             case 22:
-                data_warehouse.note_timing_lane4.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane4.Add((int)(T_N_timng * 1000) * 10 + 2);
+                data_warehouse.note_timing_lane4.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane4.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
                 break;
             //レーン5
             case 23:
-                data_warehouse.note_timing_lane5.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane5.Add((int)(T_N_timng * 1000) * 10 + 1);
+                data_warehouse.note_timing_lane5.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane5.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
                 break;
             case 24:
-                data_warehouse.note_timing_lane5.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane5.Add((int)(T_N_timng * 1000) * 10 + 2);
+                data_warehouse.note_timing_lane5.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane5.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
                 break;
 
             //レーン1 ホールド
             case 51:
-                data_warehouse.note_timing_lane1.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane1.Add((int)(T_N_timng * 1000) * 10 + 3);
+                data_warehouse.note_timing_lane1.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane1.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
                 break;
 
             case 53:
-                data_warehouse.note_timing_lane2.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane2.Add((int)(T_N_timng * 1000) * 10 + 3);
+                data_warehouse.note_timing_lane2.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane2.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
                 break;
 
 
             case 55:
-                data_warehouse.note_timing_lane3.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane3.Add((int)(T_N_timng * 1000) * 10 + 3);
+                data_warehouse.note_timing_lane3.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane3.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
                 break;
 
             case 61:
-                data_warehouse.note_timing_lane4.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane4.Add((int)(T_N_timng * 1000) * 10 + 3);
+                data_warehouse.note_timing_lane4.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane4.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
                 break;
 
             case 63:
-                data_warehouse.note_timing_lane5.Add((int)(T_N_timng * 1000));
-                data_warehouse.note_option_lane5.Add((int)(T_N_timng * 1000) * 10 + 3);
+                data_warehouse.note_timing_lane5.Add((int)(T_N_timng * note_accuracy));
+                data_warehouse.note_option_lane5.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
                 break;
 
         }
