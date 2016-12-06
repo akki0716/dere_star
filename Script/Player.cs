@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections;//コルーチン用
 using DG.Tweening;
+using HedgehogTeam.EasyTouch;
 
 //ノートを破壊したあとどうやら常にdisactiveになってるっぽい
 
@@ -45,6 +46,10 @@ public class Player : MonoBehaviour {
     public GameObject time_count_txt;//少数時間を表示する文字
     public GameObject music_time_txt;//少数時間を表示する文字
 
+    public GameObject debug;//デバッグテキスト表示する文字。後で消す。
+
+    public GameObject adbd;//デバッグテキスト表示する文字。後で消す。
+
     //判定関連----------------------------------------------------------------------------------------------------
     public int judge_note_lane1 = 0;//レーン1の判定を今探索するノート
     public int judge_note_lane2 = 0;//レーン2の判定を今探索するノート
@@ -65,10 +70,10 @@ public class Player : MonoBehaviour {
 
     float  flick_area = -3.6f;//フリック判定するY座標
 
-    int judge_time_PERFECT = 30;//判定範囲。ミリ秒。
-    int judge_time_GREAT = 65;//判定範囲。ミリ秒。
-    int judge_time_GOOD = 100;//判定範囲。ミリ秒。
-    int judge_time_BAD = 150;//判定範囲。ミリ秒。
+    int judge_time_PERFECT = 3;//判定範囲。10ミリ秒。
+    int judge_time_GREAT = 7;//判定範囲。10ミリ秒。
+    int judge_time_GOOD = 10;//判定範囲。10ミリ秒。
+    int judge_time_BAD = 15;//判定範囲。10ミリ秒。
 
     public CriAtomSource atomSource_se;
 
@@ -135,12 +140,36 @@ public class Player : MonoBehaviour {
     //public String des_target_note;//破壊対象のオブジェクトの名前
 
 
-    public GameObject debug;//デバッグテキスト表示する文字。後で消す。
 
+
+
+
+
+
+    void OnEnable()
+    {
+        EasyTouch.On_TouchStart += On_TouchStart;
+        EasyTouch.On_Drag += On_Drag;
+        EasyTouch.On_LongTapStart += On_LongTapStart;
+    }
+
+    void OnDisable()
+    {
+        EasyTouch.On_TouchStart -= On_TouchStart;
+        EasyTouch.On_Drag += On_Drag;
+        EasyTouch.On_LongTapStart += On_LongTapStart;
+    }
+
+    void OnDestroy()
+    {
+        EasyTouch.On_TouchStart -= On_TouchStart;
+        EasyTouch.On_Drag += On_Drag;
+        EasyTouch.On_LongTapStart += On_LongTapStart;
+    }
 
     void Start()
     {
-        //GetComponent<Text>().text = "Player開始 ";
+        adbd.GetComponent<Text>().text = "Player開始 ";
         //Debug.Log("judge_note_lane1 start" + judge_note_lane1);
        
 
@@ -155,9 +184,10 @@ public class Player : MonoBehaviour {
         steam_time = steam_time_decide(Now_BPM, 1/ HS);
         //Debug.Log("steam_time " + steam_time);
         start_decide();
+        atomSource_se = gameObject.GetComponent<CriAtomSource>();
         count_switch = true;
         
-        atomSource_se = gameObject.GetComponent<CriAtomSource>();
+        
     }
 
     void FixedUpdate()
@@ -166,6 +196,7 @@ public class Player : MonoBehaviour {
         if (time_count == BGM_start_time)
         {
             BGM.Play();
+            adbd.GetComponent<Text>().text = "BGM開始 ";
         }
 
         if (count_switch == true)
@@ -473,6 +504,7 @@ public class Player : MonoBehaviour {
                 using (AndroidJavaObject externalFilesDir = currentActivity.Call<AndroidJavaObject>("getExternalFilesDir", null))
                 {
                     settingfile = externalFilesDir.Call<string>("getCanonicalPath") + "/setting.txt";
+                    //sdcard/Android/data/com.sato.derester/files/ 以下に置く(songsと同列)
                 }
             }
         }
@@ -506,6 +538,11 @@ public class Player : MonoBehaviour {
             if(adb.Substring(0, 4) == "#Del")
             {
                 BGM_start_time =  int.Parse(adb.Substring(10));
+                adbd.GetComponent<Text>().text = "BGM " + BGM_start_time;
+                if (BGM_start_time == 0)
+                {
+                    BGM_start_time = 100;
+                }
             }
 
         }
@@ -543,6 +580,7 @@ public class Player : MonoBehaviour {
     void touch_judge()//タッチ判定
     {
 
+
         /*
         if (Input.touchCount > 0)//タッチが1箇所以上
         {
@@ -559,8 +597,9 @@ public class Player : MonoBehaviour {
                     }
                 }
             }
-        }*/
-        
+        }
+        */
+        /*
         if (Input.touchCount > 0)//タッチが1箇所以上
         {
             option_search();
@@ -600,8 +639,6 @@ public class Player : MonoBehaviour {
 
                             debug.GetComponent<Text>().text = "Touching! ";
                         }
-
-
 
                     }
 
@@ -751,7 +788,7 @@ public class Player : MonoBehaviour {
 
         }
 
-
+        */
 
         /*以前の処理
         フリック無し
@@ -759,7 +796,7 @@ public class Player : MonoBehaviour {
 
 
 
-        
+        /*
         if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor)
         { //そのままだとタッチでもマウスクリック部分が反応してしまうのでエディター上のみタッチ反応するように。完成版ではコメントアウトとかするべきだと思う。
             if (Input.GetMouseButtonDown(0))//マウスクリック。
@@ -775,12 +812,13 @@ public class Player : MonoBehaviour {
                 }
             }
         }
+        */
     
    
 
     }
 
-    void judge(int lane,int option)//タッチタイミング判定
+    void judge(int lane,int type)//タッチタイミング判定
     {
         touch_time = time_count;//現在のタッチ時間
         
@@ -793,24 +831,24 @@ public class Player : MonoBehaviour {
                 if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_PERFECT)
                 {
                     //Explosion(1, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
                     }
                     
                     //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
 
-                    //Debug.Log("PERFECT！！");
+                    Debug.Log("PERFECT！！");
 
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if(option == 2)
+                    else if(type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane1 = touch_time;
@@ -832,22 +870,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_GREAT)
                 {
                     //Explosion(2, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
                     }
                     //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
                     
-                    //Debug.Log("GREAT！");
-                    if (option == 1)
+                    Debug.Log("GREAT！");
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane1 = touch_time;
@@ -869,22 +907,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_GOOD)
                 {
                     //Explosion(3, lane);//判定文字.
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
                     }
                     //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
                     
-                    //Debug.Log("GOOD");
-                    if (option == 1)
+                    Debug.Log("GOOD");
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane1 = touch_time;
@@ -907,12 +945,12 @@ public class Player : MonoBehaviour {
                 {
                     atomSource_se.Play("miss");
                     //Explosion(3);//判定文字
-                    if (option == 3)
+                    if (type == 3)
                     {
                         Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
                         Hold_Note_player.Moven.Kill();
                     }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], option);
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
                     //Debug.Log(Create_Notes_lane1[judge_note_lane1].name + "状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
                     if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
                     {
@@ -929,21 +967,21 @@ public class Player : MonoBehaviour {
                 if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_PERFECT)
                 {
                     //Explosion(1, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
                     }
 
                     //Debug.Log("PERFECT！！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane2 = touch_time;
@@ -965,22 +1003,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_GREAT)
                 {
                     //Explosion(2, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
                     }
                         
                     
                     //Debug.Log("GREAT！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane2 = touch_time;
@@ -1002,22 +1040,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_GOOD)
                 {
                     //Explosion(3, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
                     }
                         
                     
                     //Debug.Log("GOOD");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane2 = touch_time;
@@ -1039,12 +1077,12 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_BAD)
                 {
                     //Explosion(3);//判定文字
-                    if (option == 3)
+                    if (type == 3)
                     {
                         Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
                         Hold_Note_player.Moven.Kill();
                     }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], option);
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
                     
                     //Debug.Log("GOOD");
                     atomSource_se.Play("miss");
@@ -1060,22 +1098,22 @@ public class Player : MonoBehaviour {
                 if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]) <= judge_time_PERFECT)
                 {
                     //Explosion(1, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
                     }
                         
                     
                     //Debug.Log("PERFECT！！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane3 = touch_time;
@@ -1097,22 +1135,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]) <= judge_time_GREAT)
                 {
                     //Explosion(2, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
                     }
                         
                     
                     //Debug.Log("GREAT！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane3 = touch_time;
@@ -1134,22 +1172,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane3]) <= judge_time_GOOD)
                 {
                     //Explosion(3, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
                     }
                         
                     
                     //Debug.Log("GOOD");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane3 = touch_time;
@@ -1172,12 +1210,12 @@ public class Player : MonoBehaviour {
                 {
                     atomSource_se.Play("miss");
                     //Explosion(3);//判定文字
-                    if (option == 3)
+                    if (type == 3)
                     {
                         Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
                         Hold_Note_player.Moven.Kill();
                     }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], option);
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
 
                     //Debug.Log("GOOD");
                     
@@ -1194,22 +1232,22 @@ public class Player : MonoBehaviour {
                 if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]) <= judge_time_PERFECT)
                 {
                     //Explosion(1, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
                     }
                         
                     
                     //Debug.Log("PERFECT！！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane4 = touch_time;
@@ -1231,22 +1269,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]) <= judge_time_GREAT)
                 {
                     //Explosion(2, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
                     }
                         
                     
                     //Debug.Log("GREAT！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane4 = touch_time;
@@ -1268,22 +1306,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane4]) <= judge_time_GOOD)
                 {
                     //Explosion(3, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
                     }
                         
                     
                     //Debug.Log("GOOD");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane4 = touch_time;
@@ -1305,13 +1343,13 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane4]) <= judge_time_BAD)
                 {
                     //Explosion(3);//判定文字
-                    if (option == 3)
+                    if (type == 3)
                     {
                         Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
                         Hold_Note_player.Moven.Kill();
                     }
                     atomSource_se.Play("miss");
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], option);
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
                     
                     //Debug.Log("GOOD");
                     
@@ -1327,22 +1365,22 @@ public class Player : MonoBehaviour {
                 if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]) <= judge_time_PERFECT)
                 {
                     //Explosion(1, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
                     }
                         
                     
                     //Debug.Log("PERFECT！！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane5 = touch_time;
@@ -1364,22 +1402,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]) <= judge_time_GREAT)
                 {
                     //Explosion(2, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
                     }
                         
                     
                     //Debug.Log("GREAT！");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane5 = touch_time;
@@ -1401,22 +1439,22 @@ public class Player : MonoBehaviour {
                 else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane5]) <= judge_time_GOOD)
                 {
                     //Explosion(3, lane);//判定文字
-                    if (option != 3)
+                    if (type != 3)
                     {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], option);
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
                     }
                         
                     
                     //Debug.Log("GOOD");
-                    if (option == 1)
+                    if (type == 1)
                     {
                         atomSource_se.Play("clap");
                     }
-                    else if (option == 2)
+                    else if (type == 2)
                     {
                         atomSource_se.Play("slash");
                     }
-                    else if (option == 3)
+                    else if (type == 3)
                     {
                         atomSource_se.Play("clap");
                         Hold_start_lane5 = touch_time;
@@ -1439,12 +1477,12 @@ public class Player : MonoBehaviour {
                 {
                     //Explosion(3);//判定文字
                     atomSource_se.Play("miss");
-                    if (option == 3)
+                    if (type == 3)
                     {
                         Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
                         Hold_Note_player.Moven.Kill();
                     }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], option);
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
                     
                     //Debug.Log("GOOD");
                     
@@ -1891,6 +1929,81 @@ public class Player : MonoBehaviour {
 
 
     }
+
+   
+    public void On_TouchStart(Gesture gesture)//タッチされたら
+    {
+
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(gesture.position); //スクリーン座標をワールド座標に変換
+        Debug.Log("タッチ座標  " + worldPos);
+        //座標は画像参照。ポイント自体は左のレーンに含める。ex.-5.6はレーン1の範囲
+
+        if (worldPos.x >= -10 && -5.6 >= worldPos.x)//-10より大きく、-5.6よりも小さい
+        {
+            judge(0, 1);
+        }
+        if (worldPos.x > -5.6 && -1.85 >= worldPos.x)//-5.6より大きく、-1.85よりも小さい
+        {
+            judge(1, 1);
+        }
+        if (worldPos.x > -1.85 && 1.9 >= worldPos.x)//-1.85より大きく、1.9よりも小さい
+        {
+            judge(2, 1);
+        }
+        if (worldPos.x > 1.9 && 5.6 >= worldPos.x)//1.9より大きく、5.6よりも小さい
+        {
+            judge(3, 1);
+        }
+        if (worldPos.x > 5.6 && 10 >= worldPos.x)//5.6より大きく、10よりも小さい
+        {
+            judge(4, 1);
+        }
+
+    }
+    
+    public void On_Drag(Gesture gesture)//スワイプしたら
+    {
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(gesture.position); //スクリーン座標をワールド座標に変換
+        Debug.Log("ドラッグ座標  " + worldPos);
+
+
+        if (worldPos.x >= -10 && -5.6 >= worldPos.x && worldPos.y >= -3 )//-10より大きく、-5.6よりも小さい
+        {
+            Debug.Log("ドラッグレーン1  ");
+            judge(0, 2);
+        }
+        if (worldPos.x > -5.6 && -1.85 >= worldPos.x && worldPos.y >= -3)//-5.6より大きく、-1.85よりも小さい
+        {
+            Debug.Log("ドラッグレーン2  ");
+            judge(1, 2);
+        }
+        if (worldPos.x > -1.85 && 1.9 >= worldPos.x && worldPos.y >= -3)//-1.85より大きく、1.9よりも小さい
+        {
+            Debug.Log("ドラッグレーン3  ");
+            judge(2, 2);
+        }
+        if (worldPos.x > 1.9 && 5.6 >= worldPos.x && worldPos.y >= -3)//1.9より大きく、5.6よりも小さい
+        {
+            Debug.Log("ドラッグレーン4  ");
+            judge(3, 2);
+        }
+        if (worldPos.x > 5.6 && 10 >= worldPos.x && worldPos.y >= -3)//5.6より大きく、10よりも小さい
+        {
+            Debug.Log("ドラッグレーン5  ");
+            judge(4, 2);
+        }
+
+        
+    }
+
+    public void On_LongTapStart(Gesture gesture)
+    {
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(gesture.position); //スクリーン座標をワールド座標に変換
+        Debug.Log("ホールド座標  " + worldPos);
+
+    }
+
+
 
 
     IEnumerator test()//タッチレーン表示空白化用。後で消す。

@@ -152,7 +152,7 @@ public class N_Note_ObjectPool : MonoBehaviour
                     {
                         MainSpriteRenderer = obj.GetComponent<SpriteRenderer>();//現在のスプライトを取得
                         MainSpriteRenderer.sprite = NormalSprite;
-                        Debug.Log("ノーマルノート");
+                        //Debug.Log("ノーマルノート");
                     }
                     //Debug.Log("再利用時ポジション " + obj.name + " " + obj.transform.position);
                     //アクティブにする

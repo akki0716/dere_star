@@ -105,9 +105,10 @@ public class Score_load : MonoBehaviour {
             {
                 bms = sr.ReadToEnd();
 
-                //Debug.Log("bms" + bms);
+                Debug.Log("bms" + bms);
                 lines = bms.Split('\n'); //linesに1行毎にツッコむ
-                //Debug.Log("lines" + lines);
+
+                Debug.Log("lines" + lines);
             }
 
         }
@@ -116,7 +117,6 @@ public class Score_load : MonoBehaviour {
             // 改行コード
             bms += SetDefaultText();
             Debug.Log("エラー ");
-            
         }
 
 
@@ -139,15 +139,15 @@ public class Score_load : MonoBehaviour {
                 //  break;
                 case "#TIT"://タイトル
                     TITLE = i.Substring(6);
-                    //Debug.Log("TITLE " + TITLE);
+                    Debug.Log("TITLE " + TITLE);
                     break;
                 case "#SUB"://タイトル
                     SUBTITLE = i.Substring(9);
-                    //Debug.Log("SUBTITLE " + SUBTITLE);
+                    Debug.Log("SUBTITLE " + SUBTITLE);
                     break;
                 case "#ART":
                     ARTIST = i.Substring(7);
-                    //Debug.Log("ARTIST " + ARTIST);
+                    Debug.Log("ARTIST " + ARTIST);
                     break;
                 case "#BPM":
                     if (Regex.IsMatch(i.Substring(4, 1), @"\s"))//5-6文字目が空白(=ヘッダーの公称bpm)の場合
@@ -157,7 +157,7 @@ public class Score_load : MonoBehaviour {
                         BPM = double.Parse(i.Substring(5));
                         Now_BPM = BPM;
                         data_warehouse.BPM_list.Add(Now_BPM);
-                        //Debug.Log("BPM " + BPM);
+                        Debug.Log("BPM " + BPM);
                     }
                     if (Regex.IsMatch(i.Substring(4, 1), @"[0-9]$"))//5-6文字目が数字(=bpmリスト)の場合
                     {
@@ -173,25 +173,24 @@ public class Score_load : MonoBehaviour {
                             //Debug.Log("bpm変動100回目以上 ");
                             header_bpm_list.Add(double.Parse(i.Substring(8)));
                         }
-
                     }
                     break;
                 case "#PLA":
                     if (i.Substring(0, 10) == "#PLAYLEVEL")
                     {
                         PLAYLEVEL = float.Parse(i.Substring(11));
-                        //Debug.Log("PLAYLEVEL " + PLAYLEVEL);
+                        Debug.Log("PLAYLEVEL " + PLAYLEVEL);
                     }
                     break;
                 case "#TOT":
                     DIFFICULTY = int.Parse(i.Substring(6));
-                    //Debug.Log("DIFFICULTY " + DIFFICULTY);
+                    Debug.Log("DIFFICULTY " + DIFFICULTY);
                     break;
                 case "#WAV":
                     if (i.Substring(0, 6) == "#WAV01")
                     {
                         sound_source = i.Substring(6);
-                        //Debug.Log("sound_source " + sound_source);
+                        Debug.Log("sound_source " + sound_source);
                     }
                     break;
             }
@@ -204,7 +203,7 @@ public class Score_load : MonoBehaviour {
                     if (int.Parse(i.Substring(1, 3)) > max_measure)//小節数の最大を超えたら
                     {
                         max_measure = int.Parse(i.Substring(1, 3));//小節数の最大を更新
-                        //Debug.Log("max_measure " + max_measure);
+                        Debug.Log("max_measure " + max_measure);
                     }
 
                 }
@@ -243,9 +242,9 @@ public class Score_load : MonoBehaviour {
                         {
                             //Debug.Log("for");
                             now_measure_time += (measure_time(Now_BPM, 1) * measure_x);
-                            //measure_time_parts.Add(measure_time(Now_BPM, 1) * measure_x);
+                            measure_time_parts.Add(measure_time(Now_BPM, 1) * measure_x);
                             measure_time_list.Add(now_measure_time);
-                            //Debug.Log("now_measure_time " + now_measure_time);
+                            Debug.Log("now_measure_time " + now_measure_time);
                         }
                     }
 
@@ -276,7 +275,7 @@ public class Score_load : MonoBehaviour {
                             
                         case 2: //変拍子
                             measure_x = double.Parse(adb.Substring(7));
-                            //Debug.Log("measure_x  " + measure_x);
+                            Debug.Log("measure_x  " + measure_x);
                             break;
                             
                         case 8://bpm変動
@@ -588,7 +587,7 @@ public class Score_load : MonoBehaviour {
                                             else if (Hold_searching_lane5 == true)
                                             {
                                                 data_warehouse.Holdnote_seconds_lane5.Add((int)((this_note_timing - Hold_time_parts_lane5) * 1000));
-                                                Debug.Log("レーン5 ホールド時間 " + (this_note_timing - Hold_time_parts_lane5));
+                                                //Debug.Log("レーン5 ホールド時間 " + (this_note_timing - Hold_time_parts_lane5));
                                                 Hold_searching_lane5 = false;
                                                 Hold_time_parts_lane5 = 0;
                                             }
@@ -706,6 +705,7 @@ public class Score_load : MonoBehaviour {
     string SetDefaultText()
     {
         return "C#あ\n";
+        //Debug.Log("改行エラー ");
     }
 
 
@@ -846,6 +846,7 @@ public class Score_load : MonoBehaviour {
 
     void last_process()
     {
+        //Debug.Log("last_process");
         //ソート
         data_warehouse.note_timing_lane1.Sort();
         data_warehouse.note_option_lane1.Sort();
@@ -895,6 +896,7 @@ public class Score_load : MonoBehaviour {
                     using (AndroidJavaObject externalFilesDir = currentActivity.Call<AndroidJavaObject>("getExternalFilesDir", null))
                     {
                         filepath = externalFilesDir.Call<string>("getCanonicalPath") + "/Songs/Winter,again/Winter,again10key.bms";
+                        Debug.Log("filepath "+ filepath);
                     }//後で/songs/以下をロード結果無いし指定で変化させる
                 }
             }
@@ -928,8 +930,8 @@ public class Score_load : MonoBehaviour {
     void Awake()
     {
         Application.targetFrameRate = 60; //60FPSに設定
-        Time.timeScale =0.5f;//ゲーム速度
-        Input.simulateMouseWithTouches = false;//タッチでマウスイベントが起こらないように、製作中は必要
+        //Time.timeScale =1f;//ゲーム速度
+        //Input.simulateMouseWithTouches = false;//タッチでマウスイベントが起こらないように、製作中は必要
     }
 
 }
