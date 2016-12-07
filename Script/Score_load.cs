@@ -930,7 +930,7 @@ public class Score_load : MonoBehaviour {
     void Awake()
     {
         Application.targetFrameRate = 60; //60FPSに設定
-        //Time.timeScale =1f;//ゲーム速度
+        Time.timeScale =1f;//ゲーム速度
         //Input.simulateMouseWithTouches = false;//タッチでマウスイベントが起こらないように、製作中は必要
     }
 

@@ -149,21 +149,27 @@ public class Player : MonoBehaviour {
     void OnEnable()
     {
         EasyTouch.On_TouchStart += On_TouchStart;
-        EasyTouch.On_Drag += On_Drag;
+        //EasyTouch.On_Drag += On_Drag;
+        EasyTouch.On_Swipe += On_Swipe;
+        //EasyTouch.On_SwipeStart += On_SwipeStart;
         EasyTouch.On_LongTapStart += On_LongTapStart;
     }
 
     void OnDisable()
     {
         EasyTouch.On_TouchStart -= On_TouchStart;
-        EasyTouch.On_Drag += On_Drag;
+        //EasyTouch.On_Drag += On_Drag;
+        EasyTouch.On_Swipe += On_Swipe;
+        EasyTouch.On_SwipeStart += On_SwipeStart;
         EasyTouch.On_LongTapStart += On_LongTapStart;
     }
 
     void OnDestroy()
     {
         EasyTouch.On_TouchStart -= On_TouchStart;
-        EasyTouch.On_Drag += On_Drag;
+        //EasyTouch.On_Drag += On_Drag;
+        EasyTouch.On_Swipe += On_Swipe;
+        EasyTouch.On_SwipeStart += On_SwipeStart;
         EasyTouch.On_LongTapStart += On_LongTapStart;
     }
 
@@ -313,10 +319,7 @@ public class Player : MonoBehaviour {
 
         // Debug.Log("最小時間 " + note_time_minimum);
         time_count = note_time_minimum - (steam_time + extra_time);
-        if (time_count >= 0)
-        {
-            time_count = -200;
-        }
+        
         //time_count = -1000;
         //Debug.Log("カウント開始時間 " + time_count);
     }
@@ -817,687 +820,11 @@ public class Player : MonoBehaviour {
    
 
     }
-
-    void judge(int lane,int type)//タッチタイミング判定
-    {
-        touch_time = time_count;//現在のタッチ時間
-        
-        Hold_Note_player Hold_Note_player;
-        switch (lane)
-        {
-            case 0://レーン1
-                //Debug.Log("レーン1");
-                touch1 = "レーン1";
-                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_PERFECT)
-                {
-                    //Explosion(1, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
-                    }
-                    
-                    //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
-
-                    Debug.Log("PERFECT！！");
-
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if(type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane1 = touch_time;
-                        HoldTime_lane1 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane1[judge_Hold_lane1] - (touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) );
-                        HoldTime_lane1 = HoldTime_lane1 / 1000;
-                        Debug.Log("HoldTime "  + HoldTime_lane1);
-                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane1);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane1 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)//ホールドの判定法いかんでは一番最後にこれを処理するべきかもしれない
-                    {
-                        judge_note_lane1++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_GREAT)
-                {
-                    //Explosion(2, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
-                    }
-                    //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
-                    
-                    Debug.Log("GREAT！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane1 = touch_time;
-                        HoldTime_lane1 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane1[judge_Hold_lane1] - (touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]));
-                        HoldTime_lane1 = HoldTime_lane1 / 1000;
-                        //Debug.Log("HoldTime " + HoldTime_lane1);
-                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane1);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane1 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
-                    {
-                        judge_note_lane1++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_GOOD)
-                {
-                    //Explosion(3, lane);//判定文字.
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
-                    }
-                    //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
-                    
-                    Debug.Log("GOOD");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane1 = touch_time;
-                        HoldTime_lane1 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane1[judge_Hold_lane1] - (touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]));
-                        HoldTime_lane1 = HoldTime_lane1 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane1);
-                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane1);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane1 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
-                    {
-                        judge_note_lane1++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_BAD)
-                {
-                    atomSource_se.Play("miss");
-                    //Explosion(3);//判定文字
-                    if (type == 3)
-                    {
-                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                    }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
-                    //Debug.Log(Create_Notes_lane1[judge_note_lane1].name + "状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
-                    if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
-                    {
-                        judge_note_lane1++;
-                    }
-                    Debug.Log("BAD");
-                    
-
-                }
-                break;
-            case 1:
-                //Debug.Log("レーン2");
-                touch2 = "レーン2";
-                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_PERFECT)
-                {
-                    //Explosion(1, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
-                    }
-
-                    //Debug.Log("PERFECT！！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane2 = touch_time;
-                        HoldTime_lane2 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane2[judge_Hold_lane2] - (touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]));
-                        HoldTime_lane2 = HoldTime_lane2 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane2);
-                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane2);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane2 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
-                    {
-                        judge_note_lane2++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_GREAT)
-                {
-                    //Explosion(2, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
-                    }
-                        
-                    
-                    //Debug.Log("GREAT！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane2 = touch_time;
-                        HoldTime_lane2 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane2[judge_Hold_lane2] - (touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]));
-                        HoldTime_lane2 = HoldTime_lane2 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane2);
-                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane2);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane2 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
-                    {
-                        judge_note_lane2++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_GOOD)
-                {
-                    //Explosion(3, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
-                    }
-                        
-                    
-                    //Debug.Log("GOOD");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane2 = touch_time;
-                        HoldTime_lane2 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane2[judge_Hold_lane2] - (touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]));
-                        HoldTime_lane2 = HoldTime_lane2 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane2);
-                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane2);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane2 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
-                    {
-                        judge_note_lane2++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_BAD)
-                {
-                    //Explosion(3);//判定文字
-                    if (type == 3)
-                    {
-                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                    }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
-                    
-                    //Debug.Log("GOOD");
-                    atomSource_se.Play("miss");
-                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
-                    {
-                        judge_note_lane2++;
-                    }
-                }
-                break;
-            case 2:
-                //Debug.Log("レーン3");
-                touch3 = "レーン3";
-                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]) <= judge_time_PERFECT)
-                {
-                    //Explosion(1, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
-                    }
-                        
-                    
-                    //Debug.Log("PERFECT！！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane3 = touch_time;
-                        HoldTime_lane3 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane3[judge_Hold_lane3] - (touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]));
-                        HoldTime_lane3 = HoldTime_lane3 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane3);
-                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane3);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane3 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
-                    {
-                        judge_note_lane3++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]) <= judge_time_GREAT)
-                {
-                    //Explosion(2, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
-                    }
-                        
-                    
-                    //Debug.Log("GREAT！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane3 = touch_time;
-                        HoldTime_lane3 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane3[judge_Hold_lane3] - (touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]));
-                        HoldTime_lane3 = HoldTime_lane3 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane3);
-                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane3);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane3 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
-                    {
-                        judge_note_lane3++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane3]) <= judge_time_GOOD)
-                {
-                    //Explosion(3, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
-                    }
-                        
-                    
-                    //Debug.Log("GOOD");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane3 = touch_time;
-                        HoldTime_lane3 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane3[judge_Hold_lane3] - (touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]));
-                        HoldTime_lane3 = HoldTime_lane3 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane3);
-                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane3);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane3 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
-                    {
-                        judge_note_lane3++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane3]) <= judge_time_BAD)
-                {
-                    atomSource_se.Play("miss");
-                    //Explosion(3);//判定文字
-                    if (type == 3)
-                    {
-                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                    }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
-
-                    //Debug.Log("GOOD");
-                    
-                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
-                    {
-                        judge_note_lane3++;
-                    }
-
-                }
-                break;
-            case 3:
-                //Debug.Log("レーン4");
-                touch4 = "レーン4";
-                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]) <= judge_time_PERFECT)
-                {
-                    //Explosion(1, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
-                    }
-                        
-                    
-                    //Debug.Log("PERFECT！！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane4 = touch_time;
-                        HoldTime_lane4 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane4[judge_Hold_lane4] - (touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]));
-                        HoldTime_lane4 = HoldTime_lane4 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane4);
-                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane4);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane4 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
-                    {
-                        judge_note_lane4++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]) <= judge_time_GREAT)
-                {
-                    //Explosion(2, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
-                    }
-                        
-                    
-                    //Debug.Log("GREAT！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane4 = touch_time;
-                        HoldTime_lane4 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane4[judge_Hold_lane4] - (touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]));
-                        HoldTime_lane4 = HoldTime_lane4 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane4);
-                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane4);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane4 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
-                    {
-                        judge_note_lane4++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane4]) <= judge_time_GOOD)
-                {
-                    //Explosion(3, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
-                    }
-                        
-                    
-                    //Debug.Log("GOOD");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane4 = touch_time;
-                        HoldTime_lane4 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane4[judge_Hold_lane4] - (touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]));
-                        HoldTime_lane4 = HoldTime_lane4 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane4);
-                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane4);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane4 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
-                    {
-                        judge_note_lane4++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane4]) <= judge_time_BAD)
-                {
-                    //Explosion(3);//判定文字
-                    if (type == 3)
-                    {
-                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                    }
-                    atomSource_se.Play("miss");
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
-                    
-                    //Debug.Log("GOOD");
-                    
-                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
-                    {
-                        judge_note_lane4++;
-                    }
-                }
-                break;
-            case 4:
-                //Debug.Log("レーン5");
-                touch5 = "レーン5";
-                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]) <= judge_time_PERFECT)
-                {
-                    //Explosion(1, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
-                    }
-                        
-                    
-                    //Debug.Log("PERFECT！！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane5 = touch_time;
-                        HoldTime_lane5 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane5[judge_Hold_lane5] - (touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]));
-                        HoldTime_lane5 = HoldTime_lane5 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane5);
-                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane5);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane5 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
-                    {
-                        judge_note_lane5++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]) <= judge_time_GREAT)
-                {
-                    //Explosion(2, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
-                    }
-                        
-                    
-                    //Debug.Log("GREAT！");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane5 = touch_time;
-                        HoldTime_lane5 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane5[judge_Hold_lane5] - (touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]));
-                        HoldTime_lane5 = HoldTime_lane5 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane5);
-                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane5);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane5 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
-                    {
-                        judge_note_lane5++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane5]) <= judge_time_GOOD)
-                {
-                    //Explosion(3, lane);//判定文字
-                    if (type != 3)
-                    {
-                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
-                    }
-                        
-                    
-                    //Debug.Log("GOOD");
-                    if (type == 1)
-                    {
-                        atomSource_se.Play("clap");
-                    }
-                    else if (type == 2)
-                    {
-                        atomSource_se.Play("slash");
-                    }
-                    else if (type == 3)
-                    {
-                        atomSource_se.Play("clap");
-                        Hold_start_lane5 = touch_time;
-                        HoldTime_lane5 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane5[judge_Hold_lane5] - (touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]));
-                        HoldTime_lane5 = HoldTime_lane5 / 1000;
-                        Debug.Log("HoldTime " + HoldTime_lane5);
-                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                        Hold_Note_player.Shorten(HoldTime_lane5);
-                        //ホールドするべき秒数ーPERFECT時間からのズレ
-                        Hold_switch_lane5 = true;
-                    }
-                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
-                    {
-                        judge_note_lane5++;
-                    }
-
-                }
-                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane5]) <= judge_time_BAD)
-                {
-                    //Explosion(3);//判定文字
-                    atomSource_se.Play("miss");
-                    if (type == 3)
-                    {
-                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
-                        Hold_Note_player.Moven.Kill();
-                    }
-                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
-                    
-                    //Debug.Log("GOOD");
-                    
-                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
-                    {
-                        judge_note_lane5++;
-                    }
-                }
-                break;
-
-        }
-        StartCoroutine(test());
+    
 
 
-    }
+
+
 
 
 
@@ -1964,30 +1291,30 @@ public class Player : MonoBehaviour {
     public void On_Drag(Gesture gesture)//スワイプしたら
     {
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(gesture.position); //スクリーン座標をワールド座標に変換
-        Debug.Log("ドラッグ座標  " + worldPos);
+        //Debug.Log("ドラッグ座標  " + worldPos);
 
 
-        if (worldPos.x >= -10 && -5.6 >= worldPos.x && worldPos.y >= -3 )//-10より大きく、-5.6よりも小さい
+        if (worldPos.x >= -10 && -5.6 >= worldPos.x && worldPos.y >= -5 )//-10より大きく、-5.6よりも小さい
         {
             Debug.Log("ドラッグレーン1  ");
             judge(0, 2);
         }
-        if (worldPos.x > -5.6 && -1.85 >= worldPos.x && worldPos.y >= -3)//-5.6より大きく、-1.85よりも小さい
+        if (worldPos.x > -5.6 && -1.85 >= worldPos.x && worldPos.y >= -5)//-5.6より大きく、-1.85よりも小さい
         {
             Debug.Log("ドラッグレーン2  ");
             judge(1, 2);
         }
-        if (worldPos.x > -1.85 && 1.9 >= worldPos.x && worldPos.y >= -3)//-1.85より大きく、1.9よりも小さい
+        if (worldPos.x > -1.85 && 1.9 >= worldPos.x && worldPos.y >= -5)//-1.85より大きく、1.9よりも小さい
         {
             Debug.Log("ドラッグレーン3  ");
             judge(2, 2);
         }
-        if (worldPos.x > 1.9 && 5.6 >= worldPos.x && worldPos.y >= -3)//1.9より大きく、5.6よりも小さい
+        if (worldPos.x > 1.9 && 5.6 >= worldPos.x && worldPos.y >= -5)//1.9より大きく、5.6よりも小さい
         {
             Debug.Log("ドラッグレーン4  ");
             judge(3, 2);
         }
-        if (worldPos.x > 5.6 && 10 >= worldPos.x && worldPos.y >= -3)//5.6より大きく、10よりも小さい
+        if (worldPos.x > 5.6 && 10 >= worldPos.x && worldPos.y >= -5)//5.6より大きく、10よりも小さい
         {
             Debug.Log("ドラッグレーン5  ");
             judge(4, 2);
@@ -1995,6 +1322,84 @@ public class Player : MonoBehaviour {
 
         
     }
+
+
+
+
+    public void On_Swipe(Gesture gesture)
+    {
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(gesture.position); //スクリーン座標をワールド座標に変換
+        //Debug.Log("スワイプ座標  " + worldPos);
+
+
+        if (worldPos.x >= -10 && -5.6 >= worldPos.x &&
+            gesture.deltaPosition.x != 0.0 && gesture.deltaPosition.y != 0.0 )//-10より大きく、-5.6よりも小さい、かつ指が動いている
+        {
+            Debug.Log("スワイプレーン1  ");
+            judge(0, 2);
+        }
+        if (worldPos.x > -5.6 && -1.85 >= worldPos.x && worldPos.y >= -5)//-5.6より大きく、-1.85よりも小さい
+        {
+            Debug.Log("スワイプレーン2  ");
+            judge(1, 2);
+        }
+        if (worldPos.x > -1.85 && 1.9 >= worldPos.x && worldPos.y >= -5)//-1.85より大きく、1.9よりも小さい
+        {
+            Debug.Log("スワイプレーン3  ");
+            judge(2, 2);
+        }
+        if (worldPos.x > 1.9 && 5.6 >= worldPos.x && worldPos.y >= -5)//1.9より大きく、5.6よりも小さい
+        {
+            Debug.Log("スワイプレーン4  ");
+            judge(3, 2);
+        }
+        if (worldPos.x > 5.6 && 10 >= worldPos.x && worldPos.y >= -5)//5.6より大きく、10よりも小さい
+        {
+            Debug.Log("スワイプレーン5  ");
+            judge(4, 2);
+        }
+    }
+
+
+
+
+    public void On_SwipeStart(Gesture gesture)
+    {
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(gesture.position); //スクリーン座標をワールド座標に変換
+        //Debug.Log("スワイプ座標  " + worldPos);
+        Debug.Log("スワイプスタート  ");
+
+        if (worldPos.x >= -10 && -5.6 >= worldPos.x)//-10より大きく、-5.6よりも小さい
+        {
+            Debug.Log("スワイプレーン1  ");
+            judge(0, 2);
+        }
+        if (worldPos.x > -5.6 && -1.85 >= worldPos.x && worldPos.y >= -5)//-5.6より大きく、-1.85よりも小さい
+        {
+            Debug.Log("スワイプレーン2  ");
+            judge(1, 2);
+        }
+        if (worldPos.x > -1.85 && 1.9 >= worldPos.x && worldPos.y >= -5)//-1.85より大きく、1.9よりも小さい
+        {
+            Debug.Log("スワイプレーン3  ");
+            judge(2, 2);
+        }
+        if (worldPos.x > 1.9 && 5.6 >= worldPos.x && worldPos.y >= -5)//1.9より大きく、5.6よりも小さい
+        {
+            Debug.Log("スワイプレーン4  ");
+            judge(3, 2);
+        }
+        if (worldPos.x > 5.6 && 10 >= worldPos.x && worldPos.y >= -5)//5.6より大きく、10よりも小さい
+        {
+            Debug.Log("スワイプレーン5  ");
+            judge(4, 2);
+        }
+    }
+
+
+
+
+
 
     public void On_LongTapStart(Gesture gesture)
     {
@@ -2004,7 +1409,740 @@ public class Player : MonoBehaviour {
     }
 
 
+    void judge(int lane, int type)//タッチタイミング判定
+    {
+        touch_time = time_count;//現在のタッチ時間
 
+        Hold_Note_player Hold_Note_player;
+        switch (lane)
+        {
+            case 0://レーン1
+                //Debug.Log("レーン1");
+                touch1 = "レーン1";
+                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_PERFECT)
+                {
+                    //Explosion(1, lane);//判定文字
+                    
+
+                    //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
+
+                    Debug.Log("PERFECT！！");
+
+                    if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                        data_warehouse.note_option_lane1[judge_note_lane1] == 1)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("clap");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)//ここで処理しないとフリックの前のタッチ判定で増えてしまう
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+                    else if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                        data_warehouse.note_option_lane1[judge_note_lane1] == 2)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("slash");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)//ここで処理しないとフリックの前のタッチ判定で増えてしまう
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane1 = touch_time;
+                        HoldTime_lane1 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane1[judge_Hold_lane1] - (touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]));
+                        HoldTime_lane1 = HoldTime_lane1 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane1);
+                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane1);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane1 = true;
+                    }
+
+
+                    
+
+
+
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_GREAT)
+                {
+                    //Explosion(2, lane);//判定文字
+                    
+                    //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
+
+                    Debug.Log("GREAT！");
+                    if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                         data_warehouse.note_option_lane1[judge_note_lane1] == 1)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("clap");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+                    else if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                        data_warehouse.note_option_lane1[judge_note_lane1] == 2)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("slash");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane1 = touch_time;
+                        HoldTime_lane1 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane1[judge_Hold_lane1] - (touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]));
+                        HoldTime_lane1 = HoldTime_lane1 / 1000;
+                        //Debug.Log("HoldTime " + HoldTime_lane1);
+                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane1);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane1 = true;
+                    }
+                    
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_GOOD)
+                {
+                    //Explosion(3, lane);//判定文字.
+                    
+                    //Debug.Log("状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
+
+                    Debug.Log("GOOD");
+                    if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                        data_warehouse.note_option_lane1[judge_note_lane1] == 1)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("clap");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+                    else if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                        data_warehouse.note_option_lane1[judge_note_lane1] == 2)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("slash");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane1 = touch_time;
+                        HoldTime_lane1 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane1[judge_Hold_lane1] - (touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]));
+                        HoldTime_lane1 = HoldTime_lane1 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane1);
+                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane1);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane1 = true;
+                    }
+                    
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane1]) <= judge_time_BAD)
+                {
+                    
+                    //Explosion(3);//判定文字
+                    
+                    //N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);
+                    //Debug.Log(Create_Notes_lane1[judge_note_lane1].name + "状態" + Create_Notes_lane1[judge_note_lane1].activeInHierarchy);
+                    /*
+                    if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
+                    {
+                        judge_note_lane1++;
+                    }
+                    */
+
+                    if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                        data_warehouse.note_option_lane1[judge_note_lane1] == 1)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("miss");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+                    else if (type == data_warehouse.note_option_lane1[judge_note_lane1] &&
+                        data_warehouse.note_option_lane1[judge_note_lane1] == 2)//オプションが一致かつオプション1なら
+                    {
+                        atomSource_se.Play("miss");
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane1[judge_note_lane1], type);//消滅
+                        if ((data_warehouse.note_timing_lane1.Count - 1) > judge_note_lane1)
+                        {
+                            judge_note_lane1++;
+                        }
+                    }
+
+                    if (type == 3)
+                    {
+                        Hold_Note_player = Create_Notes_lane1[judge_note_lane1].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                    }
+                    Debug.Log("BAD");
+
+
+                }
+                else
+                {
+                    Debug.Log("判定範囲ではありません");
+                }
+
+
+                break;
+            case 1:
+                //Debug.Log("レーン2");
+                touch2 = "レーン2";
+                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_PERFECT)
+                {
+                    //Explosion(1, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
+                    }
+
+                    //Debug.Log("PERFECT！！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane2 = touch_time;
+                        HoldTime_lane2 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane2[judge_Hold_lane2] - (touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]));
+                        HoldTime_lane2 = HoldTime_lane2 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane2);
+                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane2);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane2 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
+                    {
+                        judge_note_lane2++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_GREAT)
+                {
+                    //Explosion(2, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
+                    }
+
+
+                    //Debug.Log("GREAT！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane2 = touch_time;
+                        HoldTime_lane2 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane2[judge_Hold_lane2] - (touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]));
+                        HoldTime_lane2 = HoldTime_lane2 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane2);
+                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane2);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane2 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
+                    {
+                        judge_note_lane2++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_GOOD)
+                {
+                    //Explosion(3, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
+                    }
+
+
+                    //Debug.Log("GOOD");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane2 = touch_time;
+                        HoldTime_lane2 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane2[judge_Hold_lane2] - (touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]));
+                        HoldTime_lane2 = HoldTime_lane2 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane2);
+                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane2);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane2 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
+                    {
+                        judge_note_lane2++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane2[judge_note_lane2]) <= judge_time_BAD)
+                {
+                    //Explosion(3);//判定文字
+                    if (type == 3)
+                    {
+                        Hold_Note_player = Create_Notes_lane2[judge_note_lane2].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                    }
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane2[judge_note_lane2], type);
+
+                    //Debug.Log("GOOD");
+                    atomSource_se.Play("miss");
+                    if ((data_warehouse.note_timing_lane2.Count - 1) > judge_note_lane2)
+                    {
+                        judge_note_lane2++;
+                    }
+                }
+                break;
+            case 2:
+                //Debug.Log("レーン3");
+                touch3 = "レーン3";
+                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]) <= judge_time_PERFECT)
+                {
+                    //Explosion(1, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
+                    }
+
+
+                    //Debug.Log("PERFECT！！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane3 = touch_time;
+                        HoldTime_lane3 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane3[judge_Hold_lane3] - (touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]));
+                        HoldTime_lane3 = HoldTime_lane3 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane3);
+                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane3);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane3 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
+                    {
+                        judge_note_lane3++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]) <= judge_time_GREAT)
+                {
+                    //Explosion(2, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
+                    }
+
+
+                    //Debug.Log("GREAT！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane3 = touch_time;
+                        HoldTime_lane3 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane3[judge_Hold_lane3] - (touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]));
+                        HoldTime_lane3 = HoldTime_lane3 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane3);
+                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane3);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane3 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
+                    {
+                        judge_note_lane3++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane3]) <= judge_time_GOOD)
+                {
+                    //Explosion(3, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
+                    }
+
+
+                    //Debug.Log("GOOD");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane3 = touch_time;
+                        HoldTime_lane3 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane3[judge_Hold_lane3] - (touch_time - data_warehouse.note_timing_lane3[judge_note_lane3]));
+                        HoldTime_lane3 = HoldTime_lane3 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane3);
+                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane3);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane3 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
+                    {
+                        judge_note_lane3++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane3]) <= judge_time_BAD)
+                {
+                    atomSource_se.Play("miss");
+                    //Explosion(3);//判定文字
+                    if (type == 3)
+                    {
+                        Hold_Note_player = Create_Notes_lane3[judge_note_lane3].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                    }
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane3[judge_note_lane3], type);
+
+                    //Debug.Log("GOOD");
+
+                    if ((data_warehouse.note_timing_lane3.Count - 1) > judge_note_lane3)
+                    {
+                        judge_note_lane3++;
+                    }
+
+                }
+                break;
+            case 3:
+                //Debug.Log("レーン4");
+                touch4 = "レーン4";
+                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]) <= judge_time_PERFECT)
+                {
+                    //Explosion(1, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
+                    }
+
+
+                    //Debug.Log("PERFECT！！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane4 = touch_time;
+                        HoldTime_lane4 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane4[judge_Hold_lane4] - (touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]));
+                        HoldTime_lane4 = HoldTime_lane4 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane4);
+                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane4);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane4 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
+                    {
+                        judge_note_lane4++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]) <= judge_time_GREAT)
+                {
+                    //Explosion(2, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
+                    }
+
+
+                    //Debug.Log("GREAT！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane4 = touch_time;
+                        HoldTime_lane4 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane4[judge_Hold_lane4] - (touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]));
+                        HoldTime_lane4 = HoldTime_lane4 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane4);
+                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane4);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane4 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
+                    {
+                        judge_note_lane4++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane4]) <= judge_time_GOOD)
+                {
+                    //Explosion(3, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
+                    }
+
+
+                    //Debug.Log("GOOD");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane4 = touch_time;
+                        HoldTime_lane4 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane4[judge_Hold_lane4] - (touch_time - data_warehouse.note_timing_lane4[judge_note_lane4]));
+                        HoldTime_lane4 = HoldTime_lane4 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane4);
+                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane4);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane4 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
+                    {
+                        judge_note_lane4++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane4]) <= judge_time_BAD)
+                {
+                    //Explosion(3);//判定文字
+                    if (type == 3)
+                    {
+                        Hold_Note_player = Create_Notes_lane4[judge_note_lane4].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                    }
+                    atomSource_se.Play("miss");
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane4[judge_note_lane4], type);
+
+                    //Debug.Log("GOOD");
+
+                    if ((data_warehouse.note_timing_lane4.Count - 1) > judge_note_lane4)
+                    {
+                        judge_note_lane4++;
+                    }
+                }
+                break;
+            case 4:
+                //Debug.Log("レーン5");
+                touch5 = "レーン5";
+                if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]) <= judge_time_PERFECT)
+                {
+                    //Explosion(1, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
+                    }
+
+
+                    //Debug.Log("PERFECT！！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane5 = touch_time;
+                        HoldTime_lane5 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane5[judge_Hold_lane5] - (touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]));
+                        HoldTime_lane5 = HoldTime_lane5 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane5);
+                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane5);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane5 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
+                    {
+                        judge_note_lane5++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]) <= judge_time_GREAT)
+                {
+                    //Explosion(2, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
+                    }
+
+
+                    //Debug.Log("GREAT！");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane5 = touch_time;
+                        HoldTime_lane5 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane5[judge_Hold_lane5] - (touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]));
+                        HoldTime_lane5 = HoldTime_lane5 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane5);
+                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane5);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane5 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
+                    {
+                        judge_note_lane5++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane5]) <= judge_time_GOOD)
+                {
+                    //Explosion(3, lane);//判定文字
+                    if (type != 3)
+                    {
+                        N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
+                    }
+
+
+                    //Debug.Log("GOOD");
+                    if (type == 1)
+                    {
+                        atomSource_se.Play("clap");
+                    }
+                    else if (type == 2)
+                    {
+                        atomSource_se.Play("slash");
+                    }
+                    else if (type == 3)
+                    {
+                        atomSource_se.Play("clap");
+                        Hold_start_lane5 = touch_time;
+                        HoldTime_lane5 = Mathf.Abs(data_warehouse.Holdnote_seconds_lane5[judge_Hold_lane5] - (touch_time - data_warehouse.note_timing_lane5[judge_note_lane5]));
+                        HoldTime_lane5 = HoldTime_lane5 / 1000;
+                        Debug.Log("HoldTime " + HoldTime_lane5);
+                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                        Hold_Note_player.Shorten(HoldTime_lane5);
+                        //ホールドするべき秒数ーPERFECT時間からのズレ
+                        Hold_switch_lane5 = true;
+                    }
+                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
+                    {
+                        judge_note_lane5++;
+                    }
+
+                }
+                else if (Mathf.Abs(touch_time - data_warehouse.note_timing_lane1[judge_note_lane5]) <= judge_time_BAD)
+                {
+                    //Explosion(3);//判定文字
+                    atomSource_se.Play("miss");
+                    if (type == 3)
+                    {
+                        Hold_Note_player = Create_Notes_lane5[judge_note_lane5].GetComponent<Hold_Note_player>();
+                        Hold_Note_player.Moven.Kill();
+                    }
+                    N_Note_ObjectPool.instance.releaseNote(Create_Notes_lane5[judge_note_lane5], type);
+
+                    //Debug.Log("GOOD");
+
+                    if ((data_warehouse.note_timing_lane5.Count - 1) > judge_note_lane5)
+                    {
+                        judge_note_lane5++;
+                    }
+                }
+                break;
+
+        }
+        StartCoroutine(test());
+
+
+    }
 
     IEnumerator test()//タッチレーン表示空白化用。後で消す。
     {
