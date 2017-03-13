@@ -1,5 +1,4 @@
 ﻿using System;//エラーキャッチに必要
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;//bmsファイルを読むのに必要
 using System.Text;//ファイルのエンコード指定に必要
@@ -145,29 +144,19 @@ public class Score_load : MonoBehaviour {
 	public List<int> note_timing_lane3 = new List<int>();//13チャンネルのノートタイミングのリスト
 	public List<int> note_timing_lane4 = new List<int>();//14チャンネルのノートタイミングのリスト
 	public List<int> note_timing_lane5 = new List<int>();//15チャンネルのノートタイミングのリスト
-    /// <summary>
-    /// 全てのレーンのノートタイミングのリスト
-    /// </summary>
-    public List<int> note_timing_all = new List<int>();//上記5チャンネルをまとめたノートタイミングのリスト
+	
 
-    /// <summary>
-    /// どのノートがどのレーンなのかのリスト
-    /// </summary>
-    public List<int> note_lane_all = new List<int>();//どのノートがどのレーンなのかのリスト
-
-    public List<int> note_option_lane1 = new List<int>();//レーン1のノートオプションのリスト
+	
+	public List<int> note_option_lane1 = new List<int>();//レーン1のノートオプションのリスト
 	public List<int> note_option_lane2 = new List<int>();//レーン2のノートオプションのリスト
 	public List<int> note_option_lane3 = new List<int>();//レーン3のノートオプションのリスト
 	public List<int> note_option_lane4 = new List<int>();//レーン4のノートオプションのリスト
 	public List<int> note_option_lane5 = new List<int>();//レーン5のノートオプションのリスト
-    /// <summary>
-    /// 全てのノートのオプションのリスト
-    /// </summary>
-    public List<int> note_option_all = new List<int>();//上記5チャンネルをまとめたノートオプションのリスト
 
 
 
-    public List<int> Holdnote_seconds_lane1 = new List<int>();//レーン1のホールドノートの秒数のリスト
+
+	public List<int> Holdnote_seconds_lane1 = new List<int>();//レーン1のホールドノートの秒数のリスト
 	public List<int> Holdnote_seconds_lane2 = new List<int>();//レーン2のホールドノートの秒数のリスト
 	public List<int> Holdnote_seconds_lane3 = new List<int>();//レーン3のホールドノートの秒数のリスト
 	public List<int> Holdnote_seconds_lane4 = new List<int>();//レーン4のホールドノートの秒数のリスト
@@ -182,8 +171,11 @@ public class Score_load : MonoBehaviour {
 
 	public data_warehouse data_warehouse;//data_warehouseスクリプト
 
-
-
+    /// <summary>
+    /// 開発用に読み込むbmsファイルを"ガチ"に変える。
+    /// </summary>
+    [SerializeField]
+    bool _isGati = false;
 
 
 	void Start () {
@@ -194,6 +186,7 @@ public class Score_load : MonoBehaviour {
 		data_trim();
 		array_size();
 		data_place();
+        Destroy(this.gameObject);
 	}
 
 	/// <summary>
@@ -268,6 +261,7 @@ public class Score_load : MonoBehaviour {
 						BPM = double.Parse(i.Substring(5));
 						Now_BPM = BPM;
 						BPM_list.Add(Now_BPM);
+						BPM_change_time.Add(0);
 						//Debug.Log("BPM " + BPM);
 					}
 					if (Regex.IsMatch(i.Substring(4, 1), @"[0-9]$"))//5-6文字目が数字(=bpmリスト)の場合
@@ -761,7 +755,15 @@ public class Score_load : MonoBehaviour {
 		}
 		else if (Application.platform == RuntimePlatform.WindowsEditor)
 		{
-			filepath = Application.dataPath + "/" + "Songs/" + "Winter,again/" + "Winter,again10key.bms";
+            if (_isGati == true)//ガチを読むなら
+            {
+                filepath = Application.dataPath + "/" + "Songs/" + "Winter,again/" + "Winter,again10key gati.bms";
+            }
+            else
+            {
+                filepath = Application.dataPath + "/" + "Songs/" + "Winter,again/" + "Winter,again10key.bms";
+
+            }
 		}
 		else if (Application.platform == RuntimePlatform.OSXEditor)
 		{
@@ -849,89 +851,74 @@ public class Score_load : MonoBehaviour {
 			case 11:
 				note_timing_lane1.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane1.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                break;
+				break;
 			case 12:
 				note_timing_lane1.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane1.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                break;
+				break;
 			//レーン2
 			case 13:
 				note_timing_lane2.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane2.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                break;
+				break;
 			case 14:
 				note_timing_lane2.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane2.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                break;
+				break;
 			//レーン3
 			case 15:
 				note_timing_lane3.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane3.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                break;
+				break;
 			case 18:
 				note_timing_lane3.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane3.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                break;
+				break;
 			//レーン4
 			case 21:
 				note_timing_lane4.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane4.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 4);
-                break;
+				break;
 			case 22:
 				note_timing_lane4.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane4.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 4);
-                break;
+				break;
 			//レーン5
 			case 23:
 				note_timing_lane5.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane5.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 5);
-                break;
+				break;
 			case 24:
 				note_timing_lane5.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane5.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 5);
-                break;
+				break;
 
 			//レーン1 ホールド
 			case 51:
 				note_timing_lane1.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane1.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 1);
-                break;
+				break;
 
 			case 53:
 				note_timing_lane2.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane2.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 2);
-                break;
+				break;
 
 
 			case 55:
 				note_timing_lane3.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane3.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                break;
+				break;
 
 			case 61:
 				note_timing_lane4.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane4.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 4);
-                break;
+				break;
 
 			case 63:
 				note_timing_lane5.Add((int)(T_N_timng * note_accuracy));
 				note_option_lane5.Add((int)(T_N_timng * note_accuracy) * 10 + 3);
-                note_lane_all.Add((int)(T_N_timng * note_accuracy) * 10 + 5);
-                break;
+				break;
 		}
 	}
 
@@ -952,72 +939,34 @@ public class Score_load : MonoBehaviour {
 		note_option_lane4.Sort();
 		note_timing_lane5.Sort();
 		note_option_lane5.Sort();
-        note_lane_all.Sort();
 
-
-        //全レーンのタイミングをまとめる
-        for (int i = 0; i < note_timing_lane1.Count ; i++)
-        {
-            note_timing_all.Add(note_timing_lane1[i]);
-        }
-        for (int i = 0; i < note_timing_lane2.Count; i++)
-        {
-            note_timing_all.Add(note_timing_lane2[i]);
-        }
-        for (int i = 0; i < note_timing_lane3.Count; i++)
-        {
-            note_timing_all.Add(note_timing_lane3[i]);
-        }
-        for (int i = 0; i < note_timing_lane4.Count; i++)
-        {
-            note_timing_all.Add(note_timing_lane4[i]);
-        }
-        for (int i = 0; i < note_timing_lane5.Count; i++)
-        {
-            note_timing_all.Add(note_timing_lane5[i]);
-        }
-        note_timing_all.Sort();
-
-       
-        //オプションを統合
-        for (int i = 0; i < note_option_lane1.Count; i++)
-        {
-            note_option_all.Add(note_option_lane1[i]);
-        }
-        for (int i = 0; i < note_option_lane2.Count; i++)
-        {
-            note_option_all.Add(note_option_lane2[i]);
-        }
-        for (int i = 0; i < note_option_lane3.Count; i++)
-        {
-            note_option_all.Add(note_option_lane3[i]);
-        }
-        for (int i = 0; i < note_option_lane4.Count; i++)
-        {
-            note_option_all.Add(note_option_lane4[i]);
-        }
-        for (int i = 0; i < note_option_lane5.Count; i++)
-        {
-            note_option_all.Add(note_option_lane5[i]);
-        }
-        note_option_all.Sort();
-
-
-
-        //オプションの切り出し
-        for (int i = 0; i < note_option_all.Count; i++)
+		//オプションの切り出し、再格納
+		for (int i = 0; i < note_option_lane1.Count; i++)
 		{
-            note_option_all[i] = note_option_all[i] % 10;
+			note_option_lane1[i] = note_option_lane1[i] % 10;
 		}
-		
+		for (int i = 0; i < note_option_lane2.Count; i++)
+		{
+			note_option_lane2[i] = note_option_lane2[i] % 10;
+		}
+		for (int i = 0; i < note_option_lane3.Count; i++)
+		{
+			note_option_lane3[i] = note_option_lane3[i] % 10;
+		}
+		for (int i = 0; i < note_option_lane4.Count; i++)
+		{
+			note_option_lane4[i] = note_option_lane4[i] % 10;
+		}
+		for (int i = 0; i < note_option_lane5.Count; i++)
+		{
+			note_option_lane5[i] = note_option_lane5[i] % 10;
+		}
 
-        //レーン指定を切り出し、再格納
-        for (int i = 0; i < note_lane_all.Count; i++)
-        {
-            note_lane_all[i] = note_lane_all[i] % 10;
-        }
-      
-    }
+
+
+
+		
+	}
 
 
 	/// <summary>
@@ -1025,118 +974,150 @@ public class Score_load : MonoBehaviour {
 	/// </summary>
 	void data_place()
 	{/*
-        //レーンの格納
-        for (int i = 0; i < note_lane_all.Count; i++)
-        {
-            data_warehouse.note_property[i].lane = note_lane_all[i];
-        }
+		//レーンの格納
+		for (int i = 0; i < note_lane_all.Count; i++)
+		{
+			data_warehouse.note_property[i].lane = note_lane_all[i];
+		}
 
-        //タイミングの格納
-        for (int i = 0; i < note_timing_all.Count; i++)
-        {
-            data_warehouse.note_property[i].timing = note_timing_all[i];
-        }
+		//タイミングの格納
+		for (int i = 0; i < note_timing_all.Count; i++)
+		{
+			data_warehouse.note_property[i].timing = note_timing_all[i];
+		}
 
-        //オプション、ホールド時間の格納
-        for (int i = 0; i < note_option_all.Count; i++)
-        {
-            int hold_pos;//今どのホールド秒数を見ているか
-            data_warehouse.note_property[i].type = note_option_all[i];//オプションの格納
-            if (note_option_all[i] == 3)//ホールドなら
-            {
-                data_warehouse.note_property[i].hold_time = 
-            }
-            else
-            {
+		//オプション、ホールド時間の格納
+		for (int i = 0; i < note_option_all.Count; i++)
+		{
+			int hold_pos;//今どのホールド秒数を見ているか
+			data_warehouse.note_property[i].type = note_option_all[i];//オプションの格納
+			if (note_option_all[i] == 3)//ホールドなら
+			{
+				data_warehouse.note_property[i].hold_time = 
+			}
+			else
+			{
 
-            }
+			}
 
-        }
-        */
-        int hold_pos_lane1 = 0;//今どのホールド秒数を見ているか
-        int hold_pos_lane2 = 0;//今どのホールド秒数を見ているか
-        int hold_pos_lane3 = 0;//今どのホールド秒数を見ているか
-        int hold_pos_lane4 = 0;//今どのホールド秒数を見ているか
-        int hold_pos_lane5 = 0;//今どのホールド秒数を見ているか
-        for (int i = 0; i < note_lane_all.Count; i++)
-        {
-            Debug.Log("note_lane_all" + note_lane_all.Count);
-            Debug.Log("note_timing_all" + note_timing_all.Count);
-            Debug.Log("note_option_all" + note_option_all.Count);//なぜか0
+		}
+		*/
+		int hold_pos_lane1 = 0;//今どのホールド秒数を見ているか
+		int hold_pos_lane2 = 0;//今どのホールド秒数を見ているか
+		int hold_pos_lane3 = 0;//今どのホールド秒数を見ているか
+		int hold_pos_lane4 = 0;//今どのホールド秒数を見ているか
+		int hold_pos_lane5 = 0;//今どのホールド秒数を見ているか
 
-            data_warehouse.note_property[i].lane = note_lane_all[i];//レーンを格納
-            data_warehouse.note_property[i].timing = note_timing_all[i];//タイミングを格納
-            data_warehouse.note_property[i].type = note_option_all[i];//オプションの格納
-            if (note_option_all[i] == 3)//ホールドなら
-            {
-                switch (note_lane_all[i])//レーンによって見る変数を変える
-                {
-                    case 1:
-                        data_warehouse.note_property[i].hold_time = Holdnote_seconds_lane1[hold_pos_lane1];//ホールド秒数の格納
-                        hold_pos_lane1++;
-                        break;
-                    case 2:
-                        data_warehouse.note_property[i].hold_time = Holdnote_seconds_lane2[hold_pos_lane2];
-                        hold_pos_lane2++;
-                        break;
-                    case 3:
-                        data_warehouse.note_property[i].hold_time = Holdnote_seconds_lane3[hold_pos_lane3];
-                        hold_pos_lane3++;
-                        break;
-                    case 4:
-                        data_warehouse.note_property[i].hold_time = Holdnote_seconds_lane4[hold_pos_lane4];
-                        hold_pos_lane4++;
-                        break;
-                    case 5:
-                        data_warehouse.note_property[i].hold_time = Holdnote_seconds_lane5[hold_pos_lane5];
-                        hold_pos_lane5++;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else
-            {
-                data_warehouse.note_property[i].hold_time = 0;
-            }
+		for (int i = 0; i < note_timing_lane1.Count; i++)//レーン1
+		{
+			data_warehouse.lane1_notes[i].timing = note_timing_lane1[i];
+			if (note_option_lane1[i] == 1 || note_option_lane1[i] == 2)//通常なら
+			{
+				data_warehouse.lane1_notes[i].type = note_option_lane1[i];
+			}
+			else if(note_option_lane1[i] == 3)//ホールドなら
+			{
+				data_warehouse.lane1_notes[i].type = note_option_lane1[i];
+				data_warehouse.lane1_notes[i].hold_time = Holdnote_seconds_lane1[hold_pos_lane1];
+				hold_pos_lane1++;
+			}
+		}
 
-        }
-        /*
-        Debug.Log(BPM_list[0]);
-        Debug.Log(BPM_change_time[0]);
-        Debug.Log("");
-        */
-        for (int i = 0; i < BPM_list.Count; i++)
-        {
-            data_warehouse.bpm_property[i].bpm = (float)BPM_list[i];//bpm初期値をつっこむ
-            if (i == 0)//bpm変化最初の一回(=初期状態のBPM)のタイミング
-            {
-                data_warehouse.bpm_property[i].timing = 0;
-            }
-            else
-            {
-                data_warehouse.bpm_property[i].timing = BPM_change_time[(i-1)];
-            }
-        }
-        //data_warehouse.bpm_property[0].bpm = (float)BPM_list[0];//bpm初期値をつっこむ
-        
 
-        
-        //bpm
 
-    }
+
+		for (int i = 0; i < note_timing_lane2.Count; i++)//レーン1
+		{
+			data_warehouse.lane2_notes[i].timing = note_timing_lane2[i];
+			if (note_option_lane2[i] == 1 || note_option_lane2[i] == 2)//通常なら
+			{
+				data_warehouse.lane2_notes[i].type = note_option_lane2[i];
+			}
+			else if (note_option_lane2[i] == 3)//ホールドなら
+			{
+				data_warehouse.lane2_notes[i].type = note_option_lane2[i];
+				data_warehouse.lane2_notes[i].hold_time = Holdnote_seconds_lane2[hold_pos_lane2];
+				hold_pos_lane2++;
+			}
+		}
+
+
+		for (int i = 0; i < note_timing_lane3.Count; i++)//レーン1
+		{
+			data_warehouse.lane3_notes[i].timing = note_timing_lane3[i];
+			if (note_option_lane3[i] == 1 || note_option_lane3[i] == 2)//通常なら
+			{
+				data_warehouse.lane3_notes[i].type = note_option_lane3[i];
+			}
+			else if (note_option_lane3[i] == 3)//ホールドなら
+			{
+				data_warehouse.lane3_notes[i].type = note_option_lane3[i];
+				data_warehouse.lane3_notes[i].hold_time = Holdnote_seconds_lane3[hold_pos_lane3];
+				hold_pos_lane3++;
+			}
+		}
+
+
+		for (int i = 0; i < note_timing_lane4.Count; i++)//レーン1
+		{
+			data_warehouse.lane4_notes[i].timing = note_timing_lane4[i];
+			if (note_option_lane4[i] == 1 || note_option_lane4[i] == 2)//通常なら
+			{
+				data_warehouse.lane4_notes[i].type = note_option_lane4[i];
+			}
+			else if (note_option_lane4[i] == 3)//ホールドなら
+			{
+				data_warehouse.lane4_notes[i].type = note_option_lane4[i];
+				data_warehouse.lane4_notes[i].hold_time = Holdnote_seconds_lane4[hold_pos_lane4];
+				hold_pos_lane4++;
+			}
+		}
+
+
+
+		for (int i = 0; i < note_timing_lane5.Count; i++)//レーン1
+		{
+			data_warehouse.lane5_notes[i].timing = note_timing_lane5[i];
+			if (note_option_lane5[i] == 1 || note_option_lane5[i] == 2)//通常なら
+			{
+				data_warehouse.lane5_notes[i].type = note_option_lane5[i];
+			}
+			else if (note_option_lane5[i] == 3)//ホールドなら
+			{
+				data_warehouse.lane5_notes[i].type = note_option_lane5[i];
+				data_warehouse.lane5_notes[i].hold_time = Holdnote_seconds_lane5[hold_pos_lane5];
+				hold_pos_lane5++;
+			}
+		}
+
+
+
+		for (int i = 0; i < BPM_list.Count; i++)//BPM
+		{
+            data_warehouse.bpm_property[i].timing = BPM_change_time[i];
+            data_warehouse.bpm_property[i].bpm = BPM_list[i];
+		}
+
+
+	//
+
+		//data_warehouse.bpm_property[0].bpm = (float)BPM_list[0];//bpm初期値をつっこむ
+
+
+
+	//bpm
+
+}
 
 	/// <summary>
 	/// data_warehouseの配列の長さを決める
 	/// </summary>
 	void array_size()
 	{
-		int note_array_size;//note_propertyの配列の長さ
-		//配列の長さを決める。(
-		note_array_size = note_timing_lane1.Count + note_timing_lane2.Count + note_timing_lane3.Count + note_timing_lane4.Count + note_timing_lane5.Count;
-       	data_warehouse.note_array_create(note_array_size);
-        data_warehouse.bpm_array_create(BPM_list.Count);
-    }
+		
+		data_warehouse.note_array_create(note_timing_lane1.Count , note_timing_lane2.Count , note_timing_lane3.Count , note_timing_lane4.Count ,note_timing_lane5.Count);
+		data_warehouse.bpm_array_create(BPM_list.Count);
+	}
 
 
 	void OnGUI()//bmsのファイルパスや中身を表示するもの。後で消す
