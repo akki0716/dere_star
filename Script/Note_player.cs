@@ -33,18 +33,18 @@ public class Note_player : MonoBehaviour {
 
 
 
-    void Start () {
 		/*
+    void Start () {
 		PlayerOBJ = GameObject.Find("Player");
 		//Clap = PlayerOBJ.GetComponent<AudioSource>();
 		Player = PlayerOBJ.GetComponent<Player>();
-		*/
 		//N_note_OBJ = GameObject.FindWithTag("N_NoteObjectPool");
 		//N_note_objP = N_note_OBJ.GetComponent<N_Note_ObjectPool>();
 	   
 		
 	}
 	
+		*/
 	
 	
 

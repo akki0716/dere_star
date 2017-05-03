@@ -1021,7 +1021,8 @@ public class Score_load : MonoBehaviour {
 				data_warehouse.lane1_notes[i].hold_time = Holdnote_seconds_lane1[hold_pos_lane1];
 				hold_pos_lane1++;
 			}
-		}
+            data_warehouse.lane1_notes[i].alive = true;
+        }
 
 
 
@@ -1039,7 +1040,8 @@ public class Score_load : MonoBehaviour {
 				data_warehouse.lane2_notes[i].hold_time = Holdnote_seconds_lane2[hold_pos_lane2];
 				hold_pos_lane2++;
 			}
-		}
+            data_warehouse.lane2_notes[i].alive = true;
+        }
 
 
 		for (int i = 0; i < note_timing_lane3.Count; i++)//レーン1
@@ -1055,7 +1057,8 @@ public class Score_load : MonoBehaviour {
 				data_warehouse.lane3_notes[i].hold_time = Holdnote_seconds_lane3[hold_pos_lane3];
 				hold_pos_lane3++;
 			}
-		}
+            data_warehouse.lane3_notes[i].alive = true;
+        }
 
 
 		for (int i = 0; i < note_timing_lane4.Count; i++)//レーン1
@@ -1071,7 +1074,8 @@ public class Score_load : MonoBehaviour {
 				data_warehouse.lane4_notes[i].hold_time = Holdnote_seconds_lane4[hold_pos_lane4];
 				hold_pos_lane4++;
 			}
-		}
+            data_warehouse.lane4_notes[i].alive = true;
+        }
 
 
 
@@ -1088,7 +1092,8 @@ public class Score_load : MonoBehaviour {
 				data_warehouse.lane5_notes[i].hold_time = Holdnote_seconds_lane5[hold_pos_lane5];
 				hold_pos_lane5++;
 			}
-		}
+            data_warehouse.lane5_notes[i].alive = true;
+        }
 
 
 

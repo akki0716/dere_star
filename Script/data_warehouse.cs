@@ -60,7 +60,7 @@ public class data_warehouse : MonoBehaviour {
             timing = ti;
             type = ty;
             hold_time = h_t;
-            alive = true;
+            alive = ali;
         }
     }
 
@@ -78,7 +78,7 @@ public class data_warehouse : MonoBehaviour {
             timing = ti;
             type = ty;
             hold_time = h_t;
-            alive = true;
+            alive = ali;
         }
     }
 
@@ -97,7 +97,7 @@ public class data_warehouse : MonoBehaviour {
             timing = ti;
             type = ty;
             hold_time = h_t;
-            alive = true;
+            alive = ali;
         }
     }
 
@@ -116,7 +116,7 @@ public class data_warehouse : MonoBehaviour {
             timing = ti;
             type = ty;
             hold_time = h_t;
-            alive = true;
+            alive = ali;
         }
     }
 
@@ -135,7 +135,7 @@ public class data_warehouse : MonoBehaviour {
             timing = ti;
             type = ty;
             hold_time = h_t;
-            alive = true;
+            alive = ali;
         }
     }
 

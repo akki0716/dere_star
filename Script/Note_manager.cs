@@ -46,6 +46,7 @@ public class Note_manager : MonoBehaviour {
     /// <summary>
     /// 音符が流れる時間をfloatにしてノートに使えるように
     /// </summary>
+    [SerializeField]
     public static float   float_steam_time;
 
     /// <summary>
@@ -185,7 +186,14 @@ public class Note_manager : MonoBehaviour {
             }
             if (_isSearch_lane1 == true && (Time_manager.count_time + steam_time) == data_warehouse.lane1_notes[lane1_index].timing)
             {
-                Note_ObjectPool.Note_Make(1, data_warehouse.lane1_notes[lane1_index].type, float_steam_time);
+                if (data_warehouse.lane1_notes[lane1_index].type ==3)//ホールドなら
+                {
+                    Note_ObjectPool.Note_Make(1, data_warehouse.lane1_notes[lane1_index].type, float_steam_time, data_warehouse.lane1_notes[lane1_index].hold_time);
+                }
+                else
+                {
+                    Note_ObjectPool.Note_Make(1, data_warehouse.lane1_notes[lane1_index].type, float_steam_time);
+                }
                 if (lane1_index < (data_warehouse.lane1_notes.Length - 1))
                 {
                     lane1_index++;
@@ -194,7 +202,14 @@ public class Note_manager : MonoBehaviour {
             }
             if (_isSearch_lane2 == true && (Time_manager.count_time + steam_time) == data_warehouse.lane2_notes[lane2_index].timing)
             {
-                Note_ObjectPool.Note_Make(2, data_warehouse.lane2_notes[lane2_index].type, float_steam_time);
+                if (data_warehouse.lane2_notes[lane2_index].type == 3)//ホールドなら
+                {
+                    Note_ObjectPool.Note_Make(2, data_warehouse.lane2_notes[lane2_index].type, float_steam_time, data_warehouse.lane2_notes[lane2_index].hold_time);
+                }
+                else
+                {
+                    Note_ObjectPool.Note_Make(2, data_warehouse.lane2_notes[lane2_index].type, float_steam_time);
+                }
                 if (lane2_index < (data_warehouse.lane2_notes.Length - 1))
                 {
                     lane2_index++;

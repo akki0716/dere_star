@@ -13,6 +13,8 @@ public class Note_ObjectPool : MonoBehaviour
     [SerializeField]
     public data_warehouse data_warehouse;
 
+
+
     //public Note_player Note_player;//Note_playerスクリプト
     //public Hold_Note_player Hold_Note_player;//Hold_Note_player
 
@@ -67,6 +69,11 @@ public class Note_ObjectPool : MonoBehaviour
     /// </summary>
     public GameObject HoldNotePrefab;
 
+    /// <summary>
+    /// 新しく作ったときのオブジェクト
+    /// </summary>
+    GameObject newObj;
+
 
     /// <summary>
     /// ノートの初期位置
@@ -97,6 +104,13 @@ public class Note_ObjectPool : MonoBehaviour
     Note_player Note_player;
 
     /// <summary>
+    /// 
+    /// </summary>
+    Hold_Note_player Hold_Note_player;
+
+
+
+    /// <summary>
     /// ノートの番号
     /// </summary>
     private int N_NoteNum = 0;
@@ -113,7 +127,7 @@ public class Note_ObjectPool : MonoBehaviour
 
 
     //float float_time = 2.0f;//テスト用
-    
+
 
     void Start()
     {
@@ -129,17 +143,17 @@ public class Note_ObjectPool : MonoBehaviour
 
 
 
-    
+
 
 
 
     /// <summary>
-    /// (ロングでない)ノートを生成
+    /// ノートを生成
     /// </summary>
     /// <param name="lane">レーン</param>
     /// <param name="type">ノートタイプ</param>
     /// <returns></returns>
-    public GameObject Note_Make(int lane, int type ,float float_time)//通常、スラッシュ用
+    public GameObject Note_Make(int lane, int type, float float_time)
     {
 
         Note_Pos = Note_Pos_decide(lane);//位置を設定
@@ -150,21 +164,21 @@ public class Note_ObjectPool : MonoBehaviour
         {
             if (obj.activeInHierarchy == false)//余っている(falseな)ゲームオブジェクトがある
             {
-                
+
                 obj.transform.position = Note_Pos;//位置を反映
 
                 obj.transform.rotation = originalRotation;//角度を設定
-                
+
 
                 SpriteChange(type, obj);//グラフィックを変える
 
-                
+
                 Note_player = obj.GetComponent<Note_player>();//Note_playerスクリプトを取得
                 Note_player.float_time = float_time;//流す時間を設定
 
                 //Debug.Log("再利用時ポジション " + obj.name + " " + obj.transform.position);
                 //アクティブにする
-                obj.name = "N_Note" + N_NoteNum.ToString() +"_lane" + lane;
+                obj.name = "N_Note" + N_NoteNum.ToString() + "_lane" + lane;
                 N_NoteNum++;
                 obj.SetActive(true);
                 Note_player.Tween.Play();
@@ -192,20 +206,19 @@ public class Note_ObjectPool : MonoBehaviour
                         //Player.Create_Notes_lane5.Add(obj);
                         break;
                 }
-                
+
                 return obj;
             }
         }
 
         //使用できるものが無かった場合
         //新たに生成して、リストに追加して返す
-        GameObject newObj = Instantiate(NotePrefab, Note_Pos, originalRotation);
+
+        newObj = Instantiate(NotePrefab, Note_Pos, originalRotation);
         Note_player = newObj.GetComponent<Note_player>();//Note_playerスクリプトを取得
         //Note_player.float_time = float_time;//流す時間を設定
         SpriteChange(type, newObj);
         Note_player.Tween.Play();
-
-
         //Debug.Log("生成");
         //オブジェクトに番号をつける
         newObj.name = "N_Note" + N_NoteNum.ToString() + "_lane" + lane;
@@ -213,7 +226,10 @@ public class Note_ObjectPool : MonoBehaviour
         N_NoteNum++;
         //リストに追加
         pooledNoteObjects.Add(newObj);
-        
+
+
+
+
         switch (lane)
         {
             case 1:
@@ -234,7 +250,7 @@ public class Note_ObjectPool : MonoBehaviour
                 //Player.Create_Notes_lane5.Add(newObj);
                 break;
         }
-        
+
         //オブジェクトを返す
         return newObj;
 
@@ -243,8 +259,15 @@ public class Note_ObjectPool : MonoBehaviour
 
 
 
-
-    public GameObject Note_Make(int lane, int option, float float_time,int hold_time)//ホールドノートの時
+    /// <summary>
+    /// ロングノートを生成
+    /// </summary>
+    /// <param name="lane"></param>
+    /// <param name="option"></param>
+    /// <param name="float_time"></param>
+    /// <param name="hold_time"></param>
+    /// <returns></returns>
+    public GameObject Note_Make(int lane, int option, float float_time, int hold_time)//ホールドノートの時
     {
 
         Note_Pos = Note_Pos_decide(lane);//位置を設定
@@ -259,31 +282,35 @@ public class Note_ObjectPool : MonoBehaviour
                 //角度を設定
                 obj.transform.rotation = originalRotation;
                 //長さを設定(見逃すと長さ0になるため))
-                //obj.transform.localScale = Hold_note_size;
-                //obj.transform.localScale = expander((float)hold_time / 100);
-                //obj.name = "N_Hold_Note" + N_NoteNum.ToString() +"_lane" + lane;
+                obj.transform.localScale = Hold_note_size;
+                obj.transform.localScale = Expander((float)hold_time / 100);
+                obj.name = "N_Hold_Note" + N_NoteNum.ToString() +"_lane" + lane;
+                Hold_Note_player = obj.GetComponent<Hold_Note_player>();//Note_playerスクリプトを取得
+                //Hold_Note_player.float_time = float_time;//流す時間を設定
                 obj.SetActive(true);
+                Hold_Note_player.Moven.Play();
                 N_NoteNum++;
-                /*
+
                 switch (lane)
                 {
                     case 1:
-                        Player.Create_Notes_lane1.Add(obj);
+                        data_warehouse.lane1_Makes[lane1_Make_index] = obj;
+                        lane1_Make_index++;
                         break;
                     case 2:
-                        Player.Create_Notes_lane2.Add(obj);
+                        //Player.Create_Notes_lane2.Add(obj);
                         break;
                     case 3:
-                        Player.Create_Notes_lane3.Add(obj);
+                        //Player.Create_Notes_lane3.Add(obj);
                         break;
                     case 4:
-                        Player.Create_Notes_lane4.Add(obj);
+                        //Player.Create_Notes_lane4.Add(obj);
                         break;
                     case 5:
-                        Player.Create_Notes_lane5.Add(obj);
+                        //Player.Create_Notes_lane5.Add(obj);
                         break;
                 }
-                */
+
                 return obj;
             }
         }
@@ -292,33 +319,36 @@ public class Note_ObjectPool : MonoBehaviour
         GameObject newObj = Instantiate(HoldNotePrefab, Note_Pos, originalRotation);
         newObj.name = "N_Hold_Note" + N_NoteNum.ToString() + "_lane" + lane;
         //newObj.transform.localScale = expander((float)hold_time / 100);//大きさ変更
-
+        newObj.transform.localScale = Hold_note_size;
+        newObj.transform.localScale = Expander((float)hold_time / 100);
+        Hold_Note_player = newObj.GetComponent<Hold_Note_player>();//Note_playerスクリプトを取得
+        Hold_Note_player.Moven.Play();
         N_NoteNum++;
         //リストに追加
         pooledHoleNoteObjects.Add(newObj);
-        /*
-            switch (lane)
-            {
-                case 1:
-                    Player.Create_Notes_lane1.Add(newObj);
-                    break;
-                case 2:
-                    Player.Create_Notes_lane2.Add(newObj);
-                    break;
-                case 3:
-                    Player.Create_Notes_lane3.Add(newObj);
-                    break;
-                case 4:
-                    Player.Create_Notes_lane4.Add(newObj);
-                    break;
-                case 5:
-                    Player.Create_Notes_lane5.Add(newObj);
-                    break;
-            }
-            */
-            //オブジェクトを返す
-            return newObj;
-        
+
+        switch (lane)
+        {
+            case 1:
+                data_warehouse.lane1_Makes[lane1_Make_index] = newObj;
+                lane1_Make_index++;
+                break;
+            case 2:
+                //Player.Create_Notes_lane2.Add(newObj);
+                break;
+            case 3:
+                //Player.Create_Notes_lane3.Add(newObj);
+                break;
+            case 4:
+                //Player.Create_Notes_lane4.Add(newObj);
+                break;
+            case 5:
+                //Player.Create_Notes_lane5.Add(newObj);
+                break;
+        }
+        //オブジェクトを返す
+        return newObj;
+
 
 
     }
@@ -329,7 +359,8 @@ public class Note_ObjectPool : MonoBehaviour
 
 
 
-    
+
+
     //これがDestroyの代わりを果たす
     public void releaseNote(GameObject obj, int option)
     {
@@ -343,20 +374,20 @@ public class Note_ObjectPool : MonoBehaviour
         }
         else
         {
-           // Hold_Note_player = obj.GetComponent<Hold_Note_player>();
-           // Hold_Note_player.Short.Kill();
+            // Hold_Note_player = obj.GetComponent<Hold_Note_player>();
+            // Hold_Note_player.Short.Kill();
             /*これが無いと、”ホールド中に手を離したときなど、内部的には音符が短くなるアニメーションが起こっているときに
              * 再び同じノーツが再利用されるとアニメーションがそのまま再生されてしまう。ので(見た目上)破壊するときに
              * アニメーションを止めることでおかしくならなくする。
              */
 
-             
+
         }
 
         obj.SetActive(false);
 
     }
-    
+
 
 
     /// <summary>
@@ -398,7 +429,7 @@ public class Note_ObjectPool : MonoBehaviour
     /// <summary>
     /// ノートタイプに応じてスプライトを変化させる
     /// </summary>
-    void SpriteChange(int type ,GameObject obj)
+    void SpriteChange(int type, GameObject obj)
     {
         if (type == 2)//スラッシュ
         {
@@ -429,19 +460,20 @@ public class Note_ObjectPool : MonoBehaviour
     /// </summary>
     /// <param name="hold_time"></param>
     /// <returns></returns>
-    /*
-    Vector3 expander(float hold_time)
+      
+    Vector3 Expander(float hold_time)
     {
+        
         //Debug.Log("expander hold_time " + hold_time) ;
         Vector3 length;
         float x;//ノートを伸ばす倍率
-        x = 3 / Player.float_steam_time;//基準秒数より何倍早く流れているのか
-        length = new Vector3(1, (17f * x * hold_time), 1);
+        x = 3 / Note_manager.float_steam_time;//基準秒数より何倍早く流れているのか
+        length = new Vector3(1, (17f * x * hold_time), 1);//基準17f、基準からの倍率、ホールド時間
         return length;
-
+        
     }
 
-    */
+
 
 
 

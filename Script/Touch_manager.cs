@@ -24,14 +24,31 @@ public class Touch_manager : MonoBehaviour {
     Touch touch ;
 
     /// <summary>
-    /// タッチポジション
+    /// 最初のタッチポジション
     /// </summary>
-    Vector3 TouchPos;
+    Vector3 StartPos;
+
+    /// <summary>
+    /// タッチしたレーン。1番最初にタッチした位置が基準
+    /// </summary>
+    int lane;
 
     /// <summary>
     ///各指のタッチ時間を格納する配列。対応はfingerIDに準ずる(はず) 
     /// </summary>
     int [] TouchTime  = new int[6];
+
+    /// <summary>
+    /// どのレーンがホールド状態になっているか
+    /// </summary>
+    public bool[] lane_holding = new bool [6];
+
+    /// <summary>
+    /// どのぐらいの指の動きをスワイプとするか
+    /// </summary>
+    [SerializeField]
+     float SwipeSensibility;
+
 
     // Use this for initialization
     void Start () {
@@ -67,6 +84,12 @@ public class Touch_manager : MonoBehaviour {
                     case TouchPhase.Moved:
                         TouchMoved(touch, i);
                         break;
+                    case TouchPhase.Stationary:
+                        TouchHolding(touch, i);
+                        break;
+                    case TouchPhase.Ended:
+                        TouchEnd(touch, i);
+                        break;
                     default:
                         break;
                 }
@@ -101,25 +124,80 @@ public class Touch_manager : MonoBehaviour {
     /// </summary>
     void TouchBegan(Touch touch,int ID)
     {
-        int lane;
+        
         //Debug.Log("touch.position " + touch.position);
-        Vector3 Pos = Camera.main.ScreenToWorldPoint(touch.position);
-        Debug.Log("Pos " + Pos);
-        lane = JudgeLane(Pos);//レーンを判断
+        StartPos = Camera.main.ScreenToWorldPoint(touch.position);
+        Debug.Log("Pos " + StartPos);
+        lane = JudgeLane(StartPos);//レーンを判断
         Judge_manager.Judge(lane, 1, TouchTime[ID]);
     }
 
 
 
-
+    /// <summary>
+    /// タッチした指が動いた
+    /// </summary>
+    /// <param name="touch"></param>
+    /// <param name="ID"></param>
     void TouchMoved(Touch touch, int ID)
     {
+        //Debug.Log("moved");
+        Vector3 NowPos = Camera.main.ScreenToWorldPoint(touch.position);
+        if (Mathf.Abs(StartPos.x - NowPos.x) >= SwipeSensibility)
+        {
+            GetTouchTime(ID);
+            Judge_manager.Judge(lane, 2, TouchTime[ID]);
+        }
+        else if (Mathf.Abs(StartPos.y - NowPos.y) >= SwipeSensibility)
+        {
+            GetTouchTime(ID);
+            Judge_manager.Judge(lane, 2, TouchTime[ID]);
+        }
+    }
 
+
+
+    /// <summary>
+    /// ホールドし続けている
+    /// </summary>
+    void TouchHolding(Touch touch, int ID)
+    {
+        Vector3 NowPos = Camera.main.ScreenToWorldPoint(touch.position);
+        lane = JudgeLane(NowPos);//レーンを判断
+        if (lane_holding[lane] == false)//ホールドしたレーンから外れたら
+        {
+            Judge_manager.Holdkill(lane);
+            Debug.Log("hold false");
+        }
+        if (lane_holding[lane] == true)//ホールド判定中なら
+        {
+            Judge_manager.Holding(lane);//ホールド時間を超えてないか
+        }
+        
+    }
+
+
+    void TouchEnd(Touch touch, int ID)
+    {
+        Vector3 EndPos = Camera.main.ScreenToWorldPoint(touch.position);
+        lane = JudgeLane(EndPos);//レーンを判断
+        if (lane_holding[lane] == true)//ホールド中のレーンだったら
+        {
+            Judge_manager.Holdbreak(lane, Time_manager.count_time);
+            Debug.Log("hold false");
+        }
     }
 
 
 
 
+
+
+    /// <summary>
+    /// 指がどのレーンなのか
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
     int JudgeLane(Vector3 pos)
     {
         int lane = 0;
