@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class Note_ObjectPool : MonoBehaviour
 {
@@ -13,7 +14,11 @@ public class Note_ObjectPool : MonoBehaviour
     [SerializeField]
     public data_warehouse data_warehouse;
 
-
+    /// <summary>
+    /// デバッグ表示用テキスト
+    /// </summary>
+    [SerializeField]
+    GameObject text;
 
     //public Note_player Note_player;//Note_playerスクリプト
     //public Hold_Note_player Hold_Note_player;//Hold_Note_player
@@ -374,8 +379,9 @@ public class Note_ObjectPool : MonoBehaviour
         }
         else
         {
-            // Hold_Note_player = obj.GetComponent<Hold_Note_player>();
-            // Hold_Note_player.Short.Kill();
+            Hold_Note_player = obj.GetComponent<Hold_Note_player>();
+            Hold_Note_player.Short.Kill();
+            //text.GetComponent<Text>().text = "Hold release";
             /*これが無いと、”ホールド中に手を離したときなど、内部的には音符が短くなるアニメーションが起こっているときに
              * 再び同じノーツが再利用されるとアニメーションがそのまま再生されてしまう。ので(見た目上)破壊するときに
              * アニメーションを止めることでおかしくならなくする。

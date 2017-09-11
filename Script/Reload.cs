@@ -4,18 +4,23 @@ using UnityEngine.SceneManagement;
 
 public class Reload : MonoBehaviour {
     string sceneName;
+
+
+    [SerializeField]
+    GameObject Dotween;
+
+
     // Use this for initialization
     void Start () {
-        sceneName = SceneManager.GetActiveScene().name;
+       // sceneName = SceneManager.GetActiveScene().name;
     }
 	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
-    public void onTapButton()
+    public void Reset_botton()
     {
-        SceneManager.LoadScene(sceneName);
+        //Debug.Log("押した");
+        //Dotween = GameObject.Find("Dotween");
+        //Destroy(Dotween);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("playtest");
     }
 }

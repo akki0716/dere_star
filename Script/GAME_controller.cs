@@ -13,10 +13,15 @@ public class GAME_controller : MonoBehaviour {
     [SerializeField]
     float GameSpeed;
 
-    void Start () {
+   
+
+    void Start()
+    {
         Application.targetFrameRate = FPS;
         Time.timeScale = GameSpeed;
     }
-	
-	
+
+
+   
+
 }

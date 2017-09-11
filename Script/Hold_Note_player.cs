@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class Hold_Note_player : MonoBehaviour {
 
@@ -17,6 +18,10 @@ public class Hold_Note_player : MonoBehaviour {
     public Tween miss_short;
 
     float hold_base_scale = 17f;
+
+    //デバッグ用。後で消す。
+    GameObject text;
+
 
     /*
     void Start () {
@@ -35,7 +40,7 @@ public class Hold_Note_player : MonoBehaviour {
         //Moven = transform.DOLocalMoveY(-7.81f, (Note_manager.float_steam_time * 1.1863f)).SetEase(Ease.Linear);
         Moven = transform.DOLocalMoveY(-7.81f, (Note_manager.float_steam_time * 1.18636363636f)).SetEase(Ease.Linear).OnComplete(EndShort);
         //↑画面上端から下端までの距離＝上端からラインまでの距離*1.18...倍
-
+        text = GameObject.Find("Text");
     }
 
 
@@ -50,23 +55,26 @@ public class Hold_Note_player : MonoBehaviour {
         Short = transform.DOScaleY(0, HoldTime).SetEase(Ease.Linear).OnComplete(des);
         Short.Play();
         //Debug.Log("shorten");
+        text.GetComponent<Text>().text = "Shorten";
     }
 
 
     void EndShort()//見逃しmissの時に実行される
     {
+        
         Debug.Log("noteplay EndShort ");
         Debug.Log(Note_manager.float_steam_time);
         Debug.Log(transform.localScale.y/(hold_base_scale * (3 / Note_manager.float_steam_time)) );
         miss_short = transform.DOScaleY(0, (transform.localScale.y / (hold_base_scale * (3 / Note_manager.float_steam_time)))).SetEase(Ease.Linear).OnComplete(des);
         miss_short.Play();
-        
+        text.GetComponent<Text>().text = "EndShort";
     }
 
 
     void des()
     {
-
+        
+        text.GetComponent<Text>().text = "des";
         Note_ObjectPool.releaseNote(gameObject,3);
         //Debug.Log("hold des " + gameObject);
     }
